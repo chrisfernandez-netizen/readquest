@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReadQuest — Where Every Story is Made for You</title>
+<meta name="description" content="ReadQuest creates personalized, illustrated interactive stories that build reading skills, vocabulary, and a lifelong love of reading.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--orange:#FF6B35;--gold:#FFB347;--purple:#6C5CE7;--teal:#00B894;--dark:#0F0A1E;--cream:#FFF9F0;--text:#2D2235}
+body{font-family:Outfit,sans-serif;color:var(--text);background:var(--cream);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+/* ── NAV ── */
+nav{padding:18px 0;position:fixed;top:0;left:0;right:0;z-index:100;transition:.3s}
+nav.scrolled{background:rgba(15,10,30,.92);backdrop-filter:blur(16px);box-shadow:0 4px 30px rgba(0,0,0,.15)}
+nav .wrap{display:flex;justify-content:space-between;align-items:center}
+nav .logo{font-family:Fraunces,serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:-.5px}
+nav .logo span{color:var(--gold)}
+nav .cta-sm{background:var(--orange);color:#fff;border:none;border-radius:50px;padding:10px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:Outfit;transition:.2s;text-decoration:none;display:inline-block}
+nav .cta-sm:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(255,107,53,.4)}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(165deg,#0F0A1E 0%,#1A1040 25%,#2D1B69 55%,#4A2C8A 80%,#6C5CE7 100%);min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;padding:100px 0 60px}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 70% 20%,rgba(255,179,71,.08) 0%,transparent 60%),radial-gradient(ellipse at 20% 80%,rgba(108,92,231,.15) 0%,transparent 50%)}
+.hero .wrap{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;position:relative;z-index:2}
+.hero-text h1{font-family:Fraunces,serif;font-size:clamp(36px,5vw,56px);color:#fff;line-height:1.1;font-weight:900;margin-bottom:18px}
+.hero-text h1 em{font-style:italic;color:var(--gold);display:inline}
+.hero-text p{font-size:clamp(16px,2vw,19px);color:rgba(255,255,255,.7);line-height:1.6;max-width:480px;margin-bottom:28px;font-weight:300}
+.hero-text .cta{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--orange),#FF8F55);color:#fff;border:none;border-radius:60px;padding:18px 36px;font-size:18px;font-weight:700;cursor:pointer;font-family:Outfit;box-shadow:0 8px 30px rgba(255,107,53,.35);transition:.2s;text-decoration:none}
+.hero-text .cta:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(255,107,53,.45)}
+.hero-text .cta-sub{display:block;font-size:13px;color:rgba(255,255,255,.4);margin-top:12px}
+.hero-visual{position:relative;display:flex;justify-content:center}
+.hero-phone{width:260px;height:520px;background:linear-gradient(145deg,#1E1545,#2A1E60);border-radius:36px;border:3px solid rgba(255,255,255,.1);overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.05);position:relative}
+.hero-phone::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:100px;height:26px;background:#0F0A1E;border-radius:0 0 14px 14px;z-index:3}
+.phone-content{padding:35px 14px 14px;height:100%;overflow:hidden}
+.phone-content .mini-header{background:linear-gradient(135deg,#FF6B35,#FFB347);border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.phone-content .mini-header span{color:#fff;font-size:11px;font-weight:700}
+.phone-content .mini-story{background:rgba(255,255,255,.06);border-radius:12px;padding:10px;margin-bottom:8px}
+.phone-content .mini-img{width:100%;height:80px;background:linear-gradient(135deg,#4A2C8A,#6C5CE7);border-radius:8px;margin-bottom:8px}
+.phone-content .mini-text{height:6px;background:rgba(255,255,255,.12);border-radius:3px;margin-bottom:5px}
+.phone-content .mini-text.short{width:70%}
+.phone-content .mini-btn{display:inline-block;background:var(--orange);border-radius:6px;padding:5px 14px;font-size:9px;color:#fff;font-weight:700;margin-top:4px}
+.float-emoji{position:absolute;font-size:32px;animation:floatAround 6s ease-in-out infinite}
+@keyframes floatAround{0%,100%{transform:translateY(0) rotate(0deg)}25%{transform:translateY(-15px) rotate(5deg)}75%{transform:translateY(10px) rotate(-3deg)}}
+
+/* ── STATS BAR ── */
+.stats-bar{background:var(--dark);padding:28px 0;position:relative;z-index:5}
+.stats-bar .wrap{display:flex;justify-content:space-around;flex-wrap:wrap;gap:16px}
+.stat-item{text-align:center;color:#fff}
+.stat-item .num{font-family:Fraunces,serif;font-size:clamp(28px,3.5vw,40px);font-weight:900;background:linear-gradient(135deg,var(--gold),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-item .label{font-size:13px;color:rgba(255,255,255,.5);margin-top:2px;font-weight:400}
+
+/* ── FEATURES ── */
+.features{padding:80px 0}
+.section-label{font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--purple);text-align:center;margin-bottom:8px}
+.section-title{font-family:Fraunces,serif;font-size:clamp(28px,3.5vw,42px);font-weight:900;text-align:center;margin-bottom:12px;line-height:1.15}
+.section-sub{text-align:center;color:#666;font-size:17px;max-width:560px;margin:0 auto 48px;line-height:1.6;font-weight:300}
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.feature-card{background:#fff;border-radius:20px;padding:28px;border:1px solid rgba(0,0,0,.06);transition:.2s;position:relative;overflow:hidden}
+.feature-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.08)}
+.feature-card .icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:16px}
+.feature-card h3{font-family:Fraunces,serif;font-size:19px;font-weight:700;margin-bottom:8px}
+.feature-card p{color:#666;font-size:14px;line-height:1.6}
+
+/* ── HOW IT WORKS ── */
+.how{padding:80px 0;background:linear-gradient(180deg,#fff,var(--cream))}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;margin-top:48px}
+.step{text-align:center;position:relative}
+.step-num{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--orange),var(--gold));color:#fff;font-family:Fraunces,serif;font-size:24px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 6px 20px rgba(255,107,53,.25)}
+.step h3{font-family:Fraunces,serif;font-size:17px;margin-bottom:6px}
+.step p{color:#666;font-size:14px;line-height:1.5}
+
+/* ── TESTIMONIALS ── */
+.testimonials{padding:80px 0}
+.test-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.test-card{background:#fff;border-radius:20px;padding:24px;border:1px solid rgba(0,0,0,.06)}
+.test-card .stars{color:var(--gold);font-size:18px;margin-bottom:10px}
+.test-card p{font-size:15px;line-height:1.65;color:#444;font-style:italic;margin-bottom:14px}
+.test-card .author{display:flex;align-items:center;gap:10px}
+.test-card .avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px}
+.test-card .author-info{font-size:13px;font-weight:600}
+.test-card .author-info span{color:#999;font-weight:400}
+
+/* ── PRICING PREVIEW ── */
+.pricing{padding:80px 0;background:linear-gradient(165deg,#0F0A1E,#2D1B69)}
+.pricing .section-label,.pricing .section-title,.pricing .section-sub{color:#fff}
+.pricing .section-sub{color:rgba(255,255,255,.5)}
+.price-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:800px;margin:0 auto}
+.price-card{background:rgba(255,255,255,.06);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:32px 24px;text-align:center;color:#fff}
+.price-card.featured{background:rgba(255,179,71,.1);border-color:var(--gold)}
+.price-card .tier{font-size:14px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:8px}
+.price-card .price{font-family:Fraunces,serif;font-size:42px;font-weight:900;margin-bottom:4px}
+.price-card .price span{font-size:16px;font-weight:400;color:rgba(255,255,255,.4)}
+.price-card .desc{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:20px}
+.price-card ul{list-style:none;text-align:left;margin-bottom:24px}
+.price-card li{font-size:14px;padding:6px 0;color:rgba(255,255,255,.7)}
+.price-card li::before{content:'✓ ';color:var(--teal);font-weight:700}
+.price-card .btn{display:block;padding:14px;border-radius:50px;font-size:15px;font-weight:700;text-align:center;cursor:pointer;border:none;font-family:Outfit;transition:.2s;text-decoration:none}
+.price-card .btn.primary{background:linear-gradient(135deg,var(--orange),#FF8F55);color:#fff;box-shadow:0 6px 20px rgba(255,107,53,.3)}
+.price-card .btn.outline{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.2)}
+
+/* ── FINAL CTA ── */
+.final-cta{padding:80px 0;text-align:center}
+.final-cta h2{font-family:Fraunces,serif;font-size:clamp(28px,4vw,44px);font-weight:900;margin-bottom:14px;line-height:1.15}
+.final-cta p{color:#666;font-size:17px;margin-bottom:28px;font-weight:300}
+.final-cta .cta{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--orange),#FF8F55);color:#fff;border:none;border-radius:60px;padding:18px 40px;font-size:18px;font-weight:700;cursor:pointer;font-family:Outfit;box-shadow:0 8px 30px rgba(255,107,53,.3);transition:.2s;text-decoration:none}
+
+/* ── FOOTER ── */
+footer{background:var(--dark);padding:40px 0;text-align:center;color:rgba(255,255,255,.3);font-size:13px}
+footer a{color:rgba(255,255,255,.5);text-decoration:none}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+.hero .wrap{grid-template-columns:1fr;text-align:center}
+.hero-text p{margin-left:auto;margin-right:auto}
+.hero-visual{margin-top:20px}
+.hero-phone{width:220px;height:440px}
+.stats-bar .wrap{gap:24px}
+.price-cards{grid-template-columns:1fr}
+}
+
+/* ── ANIMATIONS ── */
+.reveal{opacity:0;transform:translateY(30px);transition:.6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+<div class="wrap">
+<div class="logo">📖 Read<span>Quest</span></div>
+<a href="app.html" class="cta-sm">Try It Free →</a>
+</div>
+</nav>
+
+<section class="hero">
+<div class="wrap">
+<div class="hero-text">
+<h1>Every child deserves a story made <em>just for them</em></h1>
+<p>ReadQuest creates personalized, illustrated interactive stories that adapt to your child's reading level. They choose the adventure. They build the vocabulary. They fall in love with reading.</p>
+<a href="app.html" class="cta">Start Reading Free 📖</a>
+<span class="cta-sub">No download needed — works in your browser</span>
+</div>
+<div class="hero-visual">
+<div class="float-emoji" style="top:10%;left:5%;animation-delay:0s">🐉</div>
+<div class="float-emoji" style="top:60%;left:0;animation-delay:2s">🌟</div>
+<div class="float-emoji" style="top:20%;right:5%;animation-delay:4s">🚀</div>
+<div class="float-emoji" style="bottom:15%;right:10%;animation-delay:1s">🏰</div>
+<div class="hero-phone">
+<div class="phone-content">
+<div class="mini-header"><span>📖 ReadQuest</span><span>⭐ 240 XP</span></div>
+<div class="mini-story">
+<div class="mini-img"></div>
+<div class="mini-text"></div>
+<div class="mini-text"></div>
+<div class="mini-text short"></div>
+</div>
+<div style="display:flex;gap:6px;margin-bottom:8px">
+<div class="mini-btn">🅰️ Help the dragon</div>
+<div class="mini-btn" style="background:var(--teal)">🅱️ Find another way</div>
+</div>
+<div class="mini-story">
+<div class="mini-text"></div>
+<div class="mini-text short"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="stats-bar">
+<div class="wrap">
+<div class="stat-item"><div class="num">65%</div><div class="label">of children read below grade level</div></div>
+<div class="stat-item"><div class="num">4</div><div class="label">reading levels supported</div></div>
+<div class="stat-item"><div class="num">6</div><div class="label">story genres to explore</div></div>
+<div class="stat-item"><div class="num">∞</div><div class="label">unique stories possible</div></div>
+</div>
+</section>
+
+<section class="features reveal">
+<div class="wrap">
+<div class="section-label">Why ReadQuest</div>
+<div class="section-title">Reading reimagined for every child</div>
+<div class="section-sub">Traditional reading apps give every child the same story. ReadQuest builds a unique experience that grows with your reader.</div>
+<div class="feature-grid">
+<div class="feature-card">
+<div class="icon" style="background:linear-gradient(135deg,#FFF0E8,#FFE0CC)">🎨</div>
+<h3>Illustrated Stories</h3>
+<p>Every chapter comes with a unique illustration generated to match the story. Kids see their adventure come to life visually.</p>
+</div>
+<div class="feature-card">
+<div class="icon" style="background:linear-gradient(135deg,#E8FAF8,#C8F0E8)">🔀</div>
+<h3>Choose Your Path</h3>
+<p>Children make decisions that shape the story — including moral and empathetic choices that build character alongside literacy.</p>
+</div>
+<div class="feature-card">
+<div class="icon" style="background:linear-gradient(135deg,#F0EDFF,#E8E0FF)">🌱</div>
+<h3>Word Garden</h3>
+<p>New vocabulary is woven naturally into stories. Tap any word for its definition. Watch words grow from seedlings to trees as mastery builds.</p>
+</div>
+<div class="feature-card">
+<div class="icon" style="background:linear-gradient(135deg,#FFF8E1,#FFEFCC)">🔥</div>
+<h3>Streaks & Rewards</h3>
+<p>XP, level-ups, mystery boxes, daily challenges, and awards keep kids motivated. Proven engagement mechanics that build daily reading habits.</p>
+</div>
+<div class="feature-card">
+<div class="icon" style="background:linear-gradient(135deg,#ECFDF5,#C8F8E8)">📊</div>
+<h3>Parent Dashboard</h3>
+<p>See reading level, vocabulary growth, comprehension trends, and genre preferences — all in one view. Know exactly how your child is progressing.</p>
+</div>
+<div class="feature-card">
+<div class="icon" style="background:linear-gradient(135deg,#FEF2F2,#FECACA)">🧠</div>
+<h3>Adaptive Difficulty</h3>
+<p>Stories automatically adjust when a child is struggling — simpler vocabulary, shorter sentences — without labels or shame. Every child succeeds.</p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="how reveal">
+<div class="wrap">
+<div class="section-label">How It Works</div>
+<div class="section-title">From blank page to adventure in 60 seconds</div>
+<div class="steps">
+<div class="step">
+<div class="step-num">1</div>
+<h3>Pick Your World</h3>
+<p>Choose from Fantasy, Adventure, Mystery, Sci-Fi, Nature, or History</p>
+</div>
+<div class="step">
+<div class="step-num">2</div>
+<h3>Name Your Hero</h3>
+<p>Create a character that stars in all your stories across every genre</p>
+</div>
+<div class="step">
+<div class="step-num">3</div>
+<h3>Read & Choose</h3>
+<p>Make decisions that shape the story. Learn new words along the way</p>
+</div>
+<div class="step">
+<div class="step-num">4</div>
+<h3>Grow & Level Up</h3>
+<p>Earn XP, unlock awards, build streaks, and watch your Word Garden bloom</p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="testimonials reveal">
+<div class="wrap">
+<div class="section-label">Early Testers</div>
+<div class="section-title">What families are saying</div>
+<div class="section-sub">Real feedback from our first readers</div>
+<div class="test-grid">
+<div class="test-card">
+<div class="stars">★★★★★</div>
+<p>"My daughter asked to read another story before bed. That has literally never happened before. She named her character Princess Luna and won't stop talking about her."</p>
+<div class="author"><div class="avatar" style="background:#FFF0E8">👩</div><div class="author-info">Parent of 7-year-old<br><span>Growing level reader</span></div></div>
+</div>
+<div class="test-card">
+<div class="stars">★★★★★</div>
+<p>"The fact that he gets to make choices keeps him reading. He actually went back to try a different choice to see what would happen. Smart design."</p>
+<div class="author"><div class="avatar" style="background:#E8FAF8">👨</div><div class="author-info">Parent of 9-year-old<br><span>Strong level reader</span></div></div>
+</div>
+<div class="test-card">
+<div class="stars">★★★★★</div>
+<p>"She learned the word 'perseverance' from a story and used it at dinner. I almost fell off my chair. The vocabulary building actually works."</p>
+<div class="author"><div class="avatar" style="background:#F0EDFF">👩</div><div class="author-info">Parent of 6-year-old<br><span>Starter level reader</span></div></div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="pricing reveal">
+<div class="wrap">
+<div class="section-label" style="color:var(--gold)">Pricing</div>
+<div class="section-title">Free during early access</div>
+<div class="section-sub">Try everything free while we build. Premium features coming soon.</div>
+<div class="price-cards">
+<div class="price-card">
+<div class="tier">Free</div>
+<div class="price">$0<span>/month</span></div>
+<div class="desc">During early access</div>
+<ul>
+<li>Unlimited stories</li>
+<li>All genres & reading levels</li>
+<li>Story illustrations</li>
+<li>Vocabulary tracking</li>
+<li>Parent dashboard</li>
+</ul>
+<a href="app.html" class="btn primary">Start Free →</a>
+</div>
+<div class="price-card featured">
+<div class="tier">Premium (Coming Soon)</div>
+<div class="price">$9.99<span>/month</span></div>
+<div class="desc">When we launch</div>
+<ul>
+<li>Everything in Free</li>
+<li>Read-aloud narration</li>
+<li>Advanced analytics</li>
+<li>Character persistence</li>
+<li>Family co-reading</li>
+<li>Priority story generation</li>
+</ul>
+<div class="btn outline">Coming Soon</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="final-cta reveal">
+<div class="wrap">
+<h2>Ready to spark a love of reading?</h2>
+<p>Join families discovering the joy of personalized stories. Free, no download, instant start.</p>
+<a href="app.html" class="cta">Start Your Adventure →</a>
+</div>
+</section>
+
+<footer>
+<div class="wrap">
+<p>📖 ReadQuest &copy; 2026 &nbsp;·&nbsp; <a href="app.html">Try the App</a> &nbsp;·&nbsp; Built with love for young readers</p>
+</div>
+</footer>
+
+<script>
+// Scroll reveal
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.15 });
+reveals.forEach(el => observer.observe(el));
+
+// Nav background on scroll
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 50);
+});
+</script>
+</body>
+</html>
