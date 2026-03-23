@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#FF6B35">
+<title>ReadQuest — AI Reading Adventures for Kids</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+--bg:#FFFBF0;--card:#FFFFFF;--primary:#FF6B35;--primary-light:#FFF0E8;
+--secondary:#4ECDC4;--secondary-light:#E8FAF8;--accent:#FFD166;--accent-light:#FFF8E1;
+--purple:#7B68EE;--purple-light:#F0EDFF;--dark:#2D3436;--gray:#636E72;
+--light-gray:#F5F5F0;--border:#E8E4DA;--green:#27AE60;--danger:#E74C3C;
+--font-display:'Fredoka',sans-serif;--font-body:'Nunito',sans-serif;
+}
+body{font-family:var(--font-body);background:var(--bg);color:var(--dark);min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased}
+#app{max-width:480px;margin:0 auto;min-height:100vh;min-height:100dvh;position:relative;padding-bottom:72px}
+.header{background:linear-gradient(135deg,#FF6B35,#FF8F65);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(255,107,53,.2)}
+.header-logo{display:flex;align-items:center;gap:8px}
+.header-logo span{font-family:var(--font-display);font-size:20px;color:#fff;font-weight:700}
+.header-stats{display:flex;gap:8px}
+.stat-badge{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.25);border-radius:16px;padding:4px 10px;color:#fff;font-weight:700;font-size:13px}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--card);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:6px 0 max(env(safe-area-inset-bottom),10px);z-index:100}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:500;color:var(--gray);cursor:pointer;padding:4px 10px;border-radius:8px;transition:.2s}
+.nav-item.active{color:var(--primary);font-weight:700;background:var(--primary-light)}
+.page{padding:14px 0}
+.card{background:var(--card);border-radius:16px;padding:18px;margin:0 14px 14px;box-shadow:0 2px 8px rgba(0,0,0,.04);border:1px solid var(--border)}
+.btn{background:var(--primary);color:#fff;border:none;border-radius:12px;padding:14px 20px;font-size:16px;font-weight:700;font-family:var(--font-body);cursor:pointer;width:100%;box-shadow:0 4px 12px rgba(255,107,53,.25);transition:.2s;outline:none}
+.btn:active{transform:scale(.97);opacity:.9}
+.btn.teal{background:var(--secondary);box-shadow:0 4px 12px rgba(78,205,196,.25)}
+.btn.gray{background:var(--gray);box-shadow:none}
+.btn.sm{padding:10px 16px;font-size:14px;width:auto;border-radius:10px}
+.btn:disabled{background:var(--border);box-shadow:none;cursor:default}
+.tag{padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;display:inline-block}
+input[type=text]{width:100%;padding:14px 16px;font-size:16px;font-family:var(--font-body);border:2px solid var(--border);border-radius:12px;background:var(--card);color:var(--dark);outline:none;transition:.2s}
+input[type=text]:focus{border-color:var(--primary)}
+.genre-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px}
+.genre-card{background:var(--card);border-radius:14px;padding:16px;cursor:pointer;border:2px solid var(--border);text-align:center;transition:.2s}
+.genre-card:active{transform:scale(.96)}
+.genre-card .emoji{font-size:32px;margin-bottom:6px}
+.genre-card .name{font-family:var(--font-display);font-size:15px;font-weight:700}
+.genre-card .desc{font-size:11px;color:var(--gray);margin-top:3px;line-height:1.3}
+.theme-tags{display:flex;flex-wrap:wrap;gap:8px;padding:0 14px}
+.theme-tag{padding:10px 18px;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;background:var(--light-gray);color:var(--dark);border:2px solid transparent;transition:.2s}
+.theme-tag.selected{background:var(--primary);color:#fff;border-color:var(--primary)}
+.story-text{font-size:16px;line-height:1.75;color:var(--dark);white-space:pre-wrap;margin-bottom:14px}
+.choice-btn{display:block;width:100%;text-align:left;padding:14px 18px;margin-bottom:10px;border-radius:12px;font-size:15px;font-weight:600;font-family:var(--font-body);cursor:pointer;border:none;color:#fff;transition:.2s;outline:none}
+.choice-btn:active{transform:scale(.97)}
+.choice-btn.a{background:var(--primary);box-shadow:0 4px 12px rgba(255,107,53,.25)}
+.choice-btn.b{background:var(--secondary);box-shadow:0 4px 12px rgba(78,205,196,.25)}
+.vocab-chip{display:inline-block;padding:5px 12px;border-radius:14px;background:var(--card);border:1px solid var(--accent);font-weight:700;font-size:13px;cursor:pointer;margin:3px}
+.q-option{display:block;width:100%;text-align:left;padding:12px 14px;margin-bottom:6px;border-radius:10px;font-size:14px;font-family:var(--font-body);cursor:pointer;border:2px solid var(--border);background:var(--card);color:var(--dark);transition:.2s;outline:none}
+.q-option.correct{border-color:var(--green);background:rgba(39,174,96,.1);font-weight:700}
+.q-option.wrong{border-color:var(--danger);background:rgba(231,76,60,.1)}
+.stats-row{display:flex;gap:8px;margin:0 14px 14px;flex-wrap:wrap}
+.stat-card{flex:1;min-width:85px;border-radius:12px;padding:12px 10px;text-align:center}
+.stat-card .val{font-size:20px;font-weight:800;color:var(--dark)}
+.stat-card .label{font-size:10px;color:var(--gray);font-weight:600;margin-top:2px}
+.word-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 14px}
+.word-card{background:var(--card);border-radius:14px;padding:12px;text-align:center;border:1px solid var(--border);box-shadow:0 2px 6px rgba(0,0,0,.03)}
+.award-row{display:flex;align-items:center;gap:12px;padding:12px 14px;margin:0 14px 8px;border-radius:14px;border:1px solid var(--border)}
+.award-row.earned{background:linear-gradient(135deg,#FFF8E1,#FFF0E8);border:2px solid var(--accent)}
+.award-row .emoji{font-size:28px}
+.loading{text-align:center;padding:40px 20px}
+.loading .spinner{font-size:40px;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.back-btn{background:none;border:none;display:flex;align-items:center;gap:4px;color:var(--gray);font-size:14px;padding:0 18px;margin-bottom:10px;cursor:pointer;font-family:var(--font-body)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+// ── State ──
+let state = null;
+let tab = 'home';
+let storySetup = null;
+let activeStory = null;
+let storyParts = [];
+let currentData = null;
+let loading = false;
+let error = null;
+let showVocab = null;
+let showQuestion = false;
+let answered = null;
+let chapterNum = 1;
+let selectedChoiceIdx = null;
+
+const GENRES = [
+  {id:'fantasy',emoji:'🐉',name:'Fantasy',color:'#7B68EE',desc:'Magic, dragons & enchanted worlds'},
+  {id:'adventure',emoji:'🗺️',name:'Adventure',color:'#FF6B35',desc:'Brave quests & daring journeys'},
+  {id:'mystery',emoji:'🔍',name:'Mystery',color:'#2D3436',desc:'Clues, puzzles & secrets'},
+  {id:'scifi',emoji:'🚀',name:'Sci-Fi',color:'#4ECDC4',desc:'Space, robots & the future'},
+  {id:'nature',emoji:'🌿',name:'Nature',color:'#27AE60',desc:'Animals & the natural world'},
+  {id:'history',emoji:'🏰',name:'History',color:'#E67E22',desc:'Travel back in time'},
+];
+const THEMES = ['Friendship','Courage','Honesty','Kindness','Perseverance','Empathy'];
+const LEVELS = [
+  {id:'early',label:'Early Reader (Ages 4-6)',grade:'K-1'},
+  {id:'developing',label:'Developing (Ages 6-8)',grade:'1-3'},
+  {id:'fluent',label:'Fluent (Ages 8-10)',grade:'3-5'},
+  {id:'advanced',label:'Advanced (Ages 10-14)',grade:'5-8'},
+];
+
+// ── Persistence ──
+function saveState(){try{localStorage.setItem('rq_state',JSON.stringify(state))}catch(e){}}
+function loadState(){try{const s=localStorage.getItem('rq_state');return s?JSON.parse(s):null}catch(e){return null}}
+
+// ── AI ──
+async function generateStory(genre,theme,charName,level,existing='',choice=''){
+  const li={
+    early:"Write for ages 4-6. Very simple words (1-2 syllables). Short sentences (5-8 words). 3-4 sentences per paragraph. Include 2 vocabulary words.",
+    developing:"Write for ages 6-8. Simple but varied vocabulary. 8-12 word sentences. 4-5 sentences per paragraph. Include 3 vocabulary words.",
+    fluent:"Write for ages 8-10. Rich vocabulary, descriptive language. Varied sentences. Include 4 vocabulary words.",
+    advanced:"Write for ages 10-14. Sophisticated vocabulary, complex sentences. Literary devices. Include 5 vocabulary words.",
+  };
+  const prompt = existing
+    ? `Continue this interactive story. The reader chose: "${choice}"\n\nPrevious story:\n${existing}\n\nContinue with 2-3 paragraphs showing the consequence. Then present exactly 2 new choices - one should involve a moral or empathetic decision.\n\n${li[level]}\n\nRespond in this exact JSON format only, no markdown:\n{"story":"next part","choices":["Choice A","Choice B"],"vocabulary":[{"word":"w","definition":"d","partOfSpeech":"n"}],"comprehensionQuestion":{"question":"q","options":["correct","wrong1","wrong2"],"correctIndex":0}}`
+    : `Create the opening of an interactive ${genre} story for a child named ${charName}. Theme: ${theme}.\n\n${li[level]}\n\nWrite 3-4 engaging paragraphs. End at a choice moment. Present exactly 2 choices - make one involve a moral or empathetic decision.\n\nRespond in this exact JSON format only, no markdown:\n{"story":"opening text","choices":["Choice A","Choice B"],"vocabulary":[{"word":"w","definition":"d","partOfSpeech":"n"}],"comprehensionQuestion":{"question":"q","options":["correct","wrong1","wrong2"],"correctIndex":0}}`;
+  const r = await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})
+  });
+  const d = await r.json();
+  const t = d.content?.map(c=>c.text||'').join('')||'';
+  return JSON.parse(t.replace(/```json|```/g,'').trim());
+}
+
+// ── Render ──
+function render(){
+  const app = document.getElementById('app');
+  if(!state){app.innerHTML=renderOnboarding();return;}
+  if(activeStory){app.innerHTML=renderHeader()+renderStoryReader();return;}
+  let content='';
+  if(tab==='home') content=renderHome();
+  else if(tab==='read') content=storySetup?renderSetup():renderReadEmpty();
+  else if(tab==='words') content=renderWords();
+  else if(tab==='awards') content=renderAwards();
+  else if(tab==='parent') content=renderParent();
+  app.innerHTML=renderHeader()+content+renderNav();
+}
+
+function renderHeader(){
+  return `<div class="header">
+    <div class="header-logo"><span style="font-size:24px">📖</span><span>ReadQuest</span></div>
+    <div class="header-stats">
+      <div class="stat-badge">🔥 ${state.streak}</div>
+      <div class="stat-badge">⭐ ${state.xp} XP</div>
+    </div>
+  </div>`;
+}
+
+function renderNav(){
+  const tabs=[{id:'home',icon:'🏠',label:'Home'},{id:'read',icon:'📖',label:'Read'},{id:'words',icon:'🌱',label:'Words'},{id:'awards',icon:'🏆',label:'Awards'},{id:'parent',icon:'📊',label:'Parent'}];
+  return `<div class="nav">${tabs.map(t=>`<div class="nav-item ${tab===t.id?'active':''}" onclick="setTab('${t.id}')">${t.icon}<span>${t.label}</span></div>`).join('')}</div>`;
+}
+
+function renderOnboarding(){
+  return `<div style="padding:24px;text-align:center;min-height:100vh;display:flex;flex-direction:column;justify-content:center">
+    <div style="font-size:56px;margin-bottom:14px">📖✨</div>
+    <h1 style="font-family:var(--font-display);font-size:28px;color:var(--primary);margin-bottom:8px">Welcome to ReadQuest!</h1>
+    <p style="font-size:15px;color:var(--gray);line-height:1.6;max-width:300px;margin:0 auto 20px">Where every story is made just for you!</p>
+    <input type="text" id="ob-name" placeholder="What's your name?" maxlength="20" style="margin-bottom:14px">
+    <p style="font-size:14px;color:var(--gray);margin-bottom:10px;text-align:left">Pick your reading level:</p>
+    ${LEVELS.map(l=>`<div onclick="pickLevel('${l.id}')" id="lvl-${l.id}" style="text-align:left;padding:14px;border:2px solid var(--border);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:.2s">
+      <div style="font-family:var(--font-display);font-size:15px;font-weight:700">${l.label}</div>
+      <div style="font-size:12px;color:var(--gray)">Grades ${l.grade}</div>
+    </div>`).join('')}
+    <button class="btn" style="margin-top:12px" onclick="completeOnboarding()" id="ob-btn" disabled>Start Reading! 📚</button>
+  </div>`;
+}
+
+let obLevel=null;
+window.pickLevel=function(id){
+  obLevel=id;
+  LEVELS.forEach(l=>{
+    const el=document.getElementById('lvl-'+l.id);
+    if(el){el.style.borderColor=l.id===id?'var(--primary)':'var(--border)';el.style.background=l.id===id?'var(--primary-light)':'var(--card)';}
+  });
+  const btn=document.getElementById('ob-btn');
+  if(btn)btn.disabled=!document.getElementById('ob-name')?.value.trim();
+};
+window.completeOnboarding=function(){
+  const name=document.getElementById('ob-name')?.value.trim();
+  if(!name||!obLevel)return;
+  state={name,readingLevel:obLevel,xp:0,streak:0,storiesRead:0,wordsLearned:[],dailyProgress:0,lastReadDate:null,readingHistory:[]};
+  saveState();render();
+};
+
+function renderHome(){
+  const today=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  return `<div class="page">
+    <div class="card" style="background:linear-gradient(135deg,#FFF0E8,#FFF8E1);border:none">
+      <p style="font-size:12px;color:var(--gray)">${today}</p>
+      <h2 style="font-family:var(--font-display);font-size:22px;margin:6px 0 4px">Hi, ${state.name}! 👋</h2>
+      <p style="font-size:14px;color:var(--gray);line-height:1.5">${state.storiesRead===0?'Ready to start your first adventure?':`You've read ${state.storiesRead} ${state.storiesRead===1?'story':'stories'}. Keep going!`}</p>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card" style="background:var(--primary-light)">🔥<div class="val">${state.streak}</div><div class="label">Streak</div></div>
+      <div class="stat-card" style="background:var(--accent-light)">⭐<div class="val">${state.xp}</div><div class="label">XP</div></div>
+      <div class="stat-card" style="background:var(--secondary-light)">🌱<div class="val">${state.wordsLearned.length}</div><div class="label">Words</div></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span style="font-size:20px">✨</span>
+        <h3 style="font-family:var(--font-display);font-size:17px">Start a New Adventure</h3>
+      </div>
+      <p style="font-size:14px;color:var(--gray);margin-bottom:14px;line-height:1.5">Choose your world, create your character, and let the story unfold!</p>
+      <button class="btn" onclick="startSetup()">Begin Your Story ✨</button>
+    </div>
+    <div class="card" style="background:var(--purple-light);border-color:rgba(123,104,238,.2)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="font-size:20px">🎯</span>
+        <h3 style="font-family:var(--font-display);font-size:15px;color:var(--purple)">Daily Challenge</h3>
+      </div>
+      <p style="font-size:13px;color:var(--gray);margin-bottom:10px">Read a story and learn 3 words for 50 bonus XP!</p>
+      <div style="background:rgba(123,104,238,.15);border-radius:6px;height:7px;overflow:hidden">
+        <div style="background:var(--purple);height:100%;width:${Math.min(100,(state.dailyProgress/3)*100)}%;border-radius:6px;transition:.5s"></div>
+      </div>
+      <p style="font-size:11px;color:var(--purple);margin-top:5px;font-weight:600">${state.dailyProgress}/3 completed</p>
+    </div>
+  </div>`;
+}
+
+window.startSetup=function(){storySetup={step:0,genre:null,theme:null,charName:''};tab='read';render();};
+window.setTab=function(t){tab=t;if(t==='read'&&!storySetup&&!activeStory)storySetup=null;render();};
+
+function renderReadEmpty(){
+  return `<div class="page" style="padding:20px;text-align:center">
+    <div style="font-size:44px;margin:30px 0 10px">📚</div>
+    <h3 style="font-family:var(--font-display);font-size:17px">Ready for a new story?</h3>
+    <button class="btn" style="margin-top:16px;max-width:240px;margin-left:auto;margin-right:auto" onclick="startSetup()">Create a Story ✨</button>
+  </div>`;
+}
+
+function renderSetup(){
+  if(!storySetup)return renderReadEmpty();
+  if(storySetup.step===0){
+    return `<div class="page">
+      <div style="padding:0 18px;margin-bottom:16px"><h2 style="font-family:var(--font-display);font-size:20px">Pick Your World</h2><p style="font-size:13px;color:var(--gray)">What kind of adventure?</p></div>
+      <div class="genre-grid">${GENRES.map(g=>`<div class="genre-card" onclick="pickGenre('${g.id}')" style="border-color:var(--border)">
+        <div class="emoji">${g.emoji}</div><div class="name" style="color:${g.color}">${g.name}</div><div class="desc">${g.desc}</div>
+      </div>`).join('')}</div>
+    </div>`;
+  }
+  if(storySetup.step===1){
+    return `<div class="page">
+      <button class="back-btn" onclick="storySetup.step=0;render()">← Back</button>
+      <div style="padding:0 18px;margin-bottom:16px"><h2 style="font-family:var(--font-display);font-size:20px">Choose a Theme</h2><p style="font-size:13px;color:var(--gray)">What should your story be about?</p></div>
+      <div class="theme-tags">${THEMES.map(t=>`<div class="theme-tag" onclick="pickTheme('${t}')">${t}</div>`).join('')}</div>
+    </div>`;
+  }
+  const genre=GENRES.find(g=>g.id===storySetup.genre);
+  const lvl=LEVELS.find(l=>l.id===state.readingLevel);
+  return `<div class="page">
+    <button class="back-btn" onclick="storySetup.step=1;render()">← Back</button>
+    <div style="padding:0 18px">
+      <h2 style="font-family:var(--font-display);font-size:20px;margin-bottom:4px">Name Your Character</h2>
+      <p style="font-size:13px;color:var(--gray);margin-bottom:16px">Who will be the hero?</p>
+      <input type="text" id="char-name" placeholder="Enter a name..." maxlength="20" oninput="storySetup.charName=this.value" value="${storySetup.charName||''}">
+      <div style="background:var(--light-gray);border-radius:12px;padding:14px;margin:16px 0">
+        <p style="font-size:12px;color:var(--gray);font-weight:600;margin-bottom:6px">YOUR ADVENTURE</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <span class="tag" style="background:${genre?.color}22;color:${genre?.color}">${genre?.emoji} ${genre?.name}</span>
+          <span class="tag" style="background:var(--primary-light);color:var(--primary)">${storySetup.theme}</span>
+          <span class="tag" style="background:var(--secondary-light);color:var(--secondary)">📚 ${lvl?.grade||'K-1'}</span>
+        </div>
+      </div>
+      <button class="btn" onclick="launchStory()" ${storySetup.charName?.trim()?'':'disabled'}>Start the Adventure! 🚀</button>
+    </div>
+  </div>`;
+}
+
+window.pickGenre=function(id){storySetup.genre=id;storySetup.step=1;render();};
+window.pickTheme=function(t){storySetup.theme=t;storySetup.step=2;render();};
+
+window.launchStory=async function(){
+  if(!storySetup.charName?.trim())return;
+  activeStory={genre:storySetup.genre,theme:storySetup.theme,characterName:storySetup.charName.trim()};
+  storyParts=[];currentData=null;loading=true;error=null;showVocab=null;showQuestion=false;answered=null;chapterNum=1;
+  render();
+  try{
+    const d=await generateStory(activeStory.genre,activeStory.theme,activeStory.characterName,state.readingLevel);
+    currentData=d;storyParts.push({text:d.story,choice:''});loading=false;render();
+  }catch(e){error="Oops! Let's try again.";loading=false;render();console.error(e);}
+};
+
+function renderStoryReader(){
+  if(loading&&storyParts.length===0){
+    return `<div class="loading"><div class="spinner">📖</div><p style="font-family:var(--font-display);font-size:17px;color:var(--primary);margin-top:10px">Creating your story...</p><p style="font-size:12px;color:var(--gray)">The adventure is about to begin!</p></div>`;
+  }
+  if(error){
+    return `<div style="text-align:center;padding:30px"><p style="font-size:40px;margin-bottom:10px">😅</p><p style="font-family:var(--font-display);font-size:17px">${error}</p><button class="btn" style="margin-top:14px;max-width:180px;margin-left:auto;margin-right:auto" onclick="launchStory()">Try Again</button></div>`;
+  }
+  const genre=GENRES.find(g=>g.id===activeStory.genre);
+  let html=`<div class="page" style="padding-bottom:0">
+    <div style="padding:0 18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+      <span class="tag" style="background:${genre?.color}22;color:${genre?.color}">${genre?.emoji} Chapter ${chapterNum}</span>
+      <button class="btn sm gray" onclick="finishStory()">End Story</button>
+    </div>
+    <div class="card">`;
+  storyParts.forEach((part,i)=>{
+    if(part.choice) html+=`<p style="font-size:12px;color:var(--primary);font-weight:700;font-style:italic;margin:10px 0 6px;padding:7px 10px;background:var(--primary-light);border-radius:8px">➤ You chose: ${part.choice}</p>`;
+    html+=`<p class="story-text">${part.text}</p>`;
+  });
+  if(loading) html+=`<div style="text-align:center;padding:16px"><div class="spinner" style="font-size:22px">✍️</div><p style="font-size:12px;color:var(--gray)">Writing next chapter...</p></div>`;
+  html+=`</div>`;
+
+  // Vocabulary
+  if(currentData?.vocabulary&&!loading){
+    html+=`<div class="card" style="background:var(--accent-light);border-color:rgba(255,209,102,.3)">
+      <p style="font-size:12px;font-weight:700;color:#E67E22;margin-bottom:8px">📝 New Words</p>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">${currentData.vocabulary.map((v,i)=>`
+        <div><div class="vocab-chip" onclick="toggleVocab(${i})">${v.word} ${showVocab===i?'▾':'▸'}</div>
+        ${showVocab===i?`<div style="background:var(--card);border-radius:8px;padding:10px;margin-top:4px;border:1px solid var(--border);font-size:12px;line-height:1.5"><span style="color:var(--gray);font-style:italic">${v.partOfSpeech}</span> — ${v.definition}</div>`:''}
+        </div>`).join('')}
+      </div></div>`;
+  }
+
+  // Comprehension question
+  if(showQuestion&&currentData?.comprehensionQuestion&&!loading){
+    const q=currentData.comprehensionQuestion;
+    html+=`<div class="card" style="background:var(--purple-light);border-color:rgba(123,104,238,.2)">
+      <p style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:10px">🧠 Quick Check</p>
+      <p style="font-size:14px;margin-bottom:12px;line-height:1.5">${q.question}</p>
+      ${q.options.map((opt,i)=>`<button class="q-option ${answered?(i===q.correctIndex?'correct':(answered.idx===i?'wrong':'')):''" onclick="answerQuestion(${i})" ${answered?'disabled':''}>${opt}${answered&&i===q.correctIndex?' ✓':''}</button>`).join('')}
+      ${answered?`<p style="font-size:13px;color:${answered.correct?'var(--green)':'var(--primary)'};font-weight:700;margin-top:10px">${answered.correct?'🎉 Correct! +20 XP':'Not quite — the correct answer is highlighted.'}</p>`:''}
+    </div>`;
+  }
+
+  // Choices
+  if(currentData?.choices&&!loading&&!showQuestion){
+    html+=`<div style="padding:0 14px 14px">
+      <p style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:8px;text-align:center">What do you do?</p>
+      ${currentData.choices.map((c,i)=>`<button class="choice-btn ${i===0?'a':'b'}" onclick="makeChoice(${i})">${i===0?'🅰️':'🅱️'} ${c}</button>`).join('')}
+    </div>`;
+  }
+
+  // Continue button
+  if(answered&&!loading){
+    html+=`<div style="padding:0 14px 14px">${chapterNum<5
+      ?`<button class="btn" onclick="continueStory()">Continue the Story →</button>`
+      :`<button class="btn" style="background:var(--green)" onclick="finishStory()">🎉 Complete Story (+50 XP)</button>`
+    }</div>`;
+  }
+
+  html+=`</div>`;
+  return html;
+}
+
+window.toggleVocab=function(i){showVocab=showVocab===i?null:i;render();};
+window.makeChoice=function(i){selectedChoiceIdx=i;showQuestion=true;render();};
+window.answerQuestion=function(i){
+  if(answered)return;
+  const correct=i===currentData.comprehensionQuestion.correctIndex;
+  answered={idx:i,correct};
+  if(correct){state.xp+=20;state.dailyProgress=Math.min(3,state.dailyProgress+1);saveState();}
+  render();
+};
+window.continueStory=async function(){
+  const fullStory=storyParts.map(p=>p.text).join('\n\n');
+  const choice=currentData.choices[selectedChoiceIdx];
+  chapterNum++;
+  if(currentData.vocabulary){
+    currentData.vocabulary.forEach(v=>{
+      if(!state.wordsLearned.find(w=>w.word===v.word))
+        state.wordsLearned.push({...v,learnedAt:Date.now(),mastery:1});
+    });
+    saveState();
+  }
+  loading=true;showQuestion=false;answered=null;showVocab=null;render();
+  try{
+    const d=await generateStory(activeStory.genre,activeStory.theme,activeStory.characterName,state.readingLevel,fullStory,choice);
+    currentData=d;storyParts.push({text:d.story,choice});loading=false;render();
+    setTimeout(()=>window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}),100);
+  }catch(e){error="Story engine hiccup. Let's try again!";loading=false;render();}
+};
+window.finishStory=function(){
+  state.xp+=50;state.storiesRead++;
+  if(state.lastReadDate!==new Date().toDateString())state.streak++;
+  state.lastReadDate=new Date().toDateString();
+  state.readingHistory=state.readingHistory||[];
+  state.readingHistory.push({genre:activeStory.genre,theme:activeStory.theme,chapters:chapterNum,date:Date.now()});
+  saveState();
+  activeStory=null;storySetup=null;tab='home';render();
+};
+
+function renderWords(){
+  const stages=['🌱','🌿','🌻','🌳'];
+  if(state.wordsLearned.length===0) return `<div class="page"><div style="padding:0 18px;margin-bottom:14px"><h2 style="font-family:var(--font-display);font-size:20px">Word Garden 🌱</h2><p style="font-size:13px;color:var(--gray)">0 words planted</p></div><div class="card" style="text-align:center"><p style="font-size:36px;margin-bottom:6px">🪴</p><p style="font-size:14px;color:var(--gray)">Read a story to plant your first words!</p></div></div>`;
+  return `<div class="page"><div style="padding:0 18px;margin-bottom:14px"><h2 style="font-family:var(--font-display);font-size:20px">Word Garden 🌱</h2><p style="font-size:13px;color:var(--gray)">${state.wordsLearned.length} words planted</p></div>
+    <div class="word-grid">${state.wordsLearned.slice(-20).reverse().map(w=>`<div class="word-card"><div style="font-size:24px;margin-bottom:3px">${stages[Math.min(w.mastery-1,3)]}</div><div style="font-family:var(--font-display);font-size:14px;font-weight:700">${w.word}</div><div style="font-size:10px;color:var(--gray);font-style:italic">${w.partOfSpeech}</div><div style="font-size:11px;color:var(--gray);margin-top:3px;line-height:1.3">${w.definition}</div></div>`).join('')}</div></div>`;
+}
+
+function renderAwards(){
+  const awards=[
+    {name:'First Story',emoji:'📖',desc:'Complete your first story',earned:state.storiesRead>=1},
+    {name:'Word Collector',emoji:'📝',desc:'Learn 10 vocabulary words',earned:state.wordsLearned.length>=10},
+    {name:'Streak Starter',emoji:'🔥',desc:'Read 3 days in a row',earned:state.streak>=3},
+    {name:'Bookworm',emoji:'🐛',desc:'Read 5 stories',earned:state.storiesRead>=5},
+    {name:'Word Wizard',emoji:'🧙',desc:'Learn 50 words',earned:state.wordsLearned.length>=50},
+    {name:'Streak Champion',emoji:'⚡',desc:'7-day streak',earned:state.streak>=7},
+    {name:'Story Master',emoji:'👑',desc:'Read 20 stories',earned:state.storiesRead>=20},
+    {name:'XP Legend',emoji:'⭐',desc:'Earn 1,000 XP',earned:state.xp>=1000},
+  ];
+  const earned=awards.filter(a=>a.earned).length;
+  return `<div class="page"><div style="padding:0 18px;margin-bottom:14px"><h2 style="font-family:var(--font-display);font-size:20px">Awards 🏆</h2><p style="font-size:13px;color:var(--gray)">${earned} of ${awards.length} earned</p></div>
+    ${awards.map(a=>`<div class="award-row ${a.earned?'earned':''}" style="opacity:${a.earned?1:.5}"><span class="emoji" style="filter:${a.earned?'none':'grayscale(1)'}">${a.emoji}</span><div style="flex:1"><div style="font-family:var(--font-display);font-size:14px;font-weight:700;color:${a.earned?'var(--dark)':'var(--gray)'}">${a.name}</div><div style="font-size:11px;color:var(--gray)">${a.desc}</div></div>${a.earned?'<span style="font-size:18px">✅</span>':''}</div>`).join('')}</div>`;
+}
+
+function renderParent(){
+  const lvl=LEVELS.find(l=>l.id===state.readingLevel);
+  const hist=state.readingHistory||[];
+  const gc={};hist.forEach(h=>{gc[h.genre]=(gc[h.genre]||0)+1;});
+  return `<div class="page"><div style="padding:0 18px;margin-bottom:14px"><h2 style="font-family:var(--font-display);font-size:20px">Parent Dashboard 📊</h2><p style="font-size:13px;color:var(--gray)">Track ${state.name}'s reading journey</p></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 14px;margin-bottom:14px">
+      <div style="background:var(--primary-light);border-radius:12px;padding:14px"><div style="font-size:10px;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Reading Level</div><div style="font-size:22px;font-weight:800">${lvl?.grade||'K-1'}</div></div>
+      <div style="background:var(--secondary-light);border-radius:12px;padding:14px"><div style="font-size:10px;font-weight:600;color:var(--secondary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Stories Read</div><div style="font-size:22px;font-weight:800">${state.storiesRead}</div></div>
+      <div style="background:#E8F8F5;border-radius:12px;padding:14px"><div style="font-size:10px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Words Learned</div><div style="font-size:22px;font-weight:800">${state.wordsLearned.length}</div></div>
+      <div style="background:var(--accent-light);border-radius:12px;padding:14px"><div style="font-size:10px;font-weight:600;color:#E67E22;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Streak</div><div style="font-size:22px;font-weight:800">${state.streak} days</div></div>
+    </div>
+    <div class="card"><h3 style="font-family:var(--font-display);font-size:15px;margin-bottom:8px">📈 Insights</h3>
+      ${state.storiesRead===0?'<p style="font-size:13px;color:var(--gray);line-height:1.6">Once reading begins, you\'ll see analytics here.</p>'
+      :`<p style="font-size:13px;line-height:1.6"><strong>XP earned:</strong> ${state.xp} &nbsp;|&nbsp; <strong>Vocabulary:</strong> ${state.wordsLearned.length} words</p>
+      ${Object.keys(gc).length?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px">${Object.entries(gc).sort((a,b)=>b[1]-a[1]).map(([g,c])=>{const gen=GENRES.find(x=>x.id===g);return `<span class="tag" style="background:${gen?.color}22;color:${gen?.color}">${gen?.emoji} ${gen?.name}: ${c}</span>`;}).join('')}</div>`:''}`}
+    </div>
+    <div class="card" style="background:var(--purple-light);border-color:rgba(123,104,238,.2)"><h3 style="font-family:var(--font-display);font-size:15px;color:var(--purple);margin-bottom:8px">💡 Recommendation</h3>
+      <p style="font-size:13px;line-height:1.6">${state.storiesRead===0?'Sit together for the first story — co-reading builds confidence!':state.streak<3?'Set a consistent daily reading time. Even 10 minutes builds a strong habit.':'Great progress! Encourage exploring new genres to broaden vocabulary.'}</p>
+    </div>
+    <div class="card" style="background:var(--light-gray)"><p style="font-size:11px;color:var(--gray);line-height:1.5">🔒 <strong>Privacy:</strong> All data stays on this device. No data is sent to any server except for AI story generation.</p></div>
+  </div>`;
+}
+
+// ── Init ──
+document.addEventListener('DOMContentLoaded',()=>{
+  state=loadState();render();
+  // Enable onboarding button on input
+  document.addEventListener('input',e=>{
+    if(e.target.id==='ob-name'){const btn=document.getElementById('ob-btn');if(btn)btn.disabled=!(e.target.value.trim()&&obLevel);}
+  });
+});
+</script>
+</body>
+</html>
